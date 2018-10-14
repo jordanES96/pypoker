@@ -21,6 +21,9 @@ class Card:  # Create a card object that stores suit and rank for each object
             rank = self.rank
         return str(rank) + self.suit
 
+    def getRank(self):
+        return self.rank
+
     def __eq__(self, other):
         return self.rank == other.rank
 
@@ -31,7 +34,7 @@ class Card:  # Create a card object that stores suit and rank for each object
         return self.rank + other.rank
 
     def show(self):
-        print str(self.rank + self.suit)
+        print (str(self.rank + self.suit))
 
 
 class Deck:  # Create a deck object that stores our card objects
@@ -51,7 +54,7 @@ class Deck:  # Create a deck object that stores our card objects
 
     def test(self):
         for i in self.cards:
-            print i
+            print (i)
 
     def shuffle(self):  # Shuffles our deck list
         random.shuffle(self.cards)
@@ -114,13 +117,13 @@ class Board:  # Community cards
         self.card5 = card5
 
     def print_flop(self):
-        print self.card1, self.card2, self.card3
+        print (self.card1, self.card2, self.card3)
 
     def print_turn(self):
-        print self.card1, self.card2, self.card3, self.card4
+        print (self.card1, self.card2, self.card3, self.card4)
 
     def print_river(self):
-        print self.card1, self.card2, self.card3, self.card4, self.card5
+        print (self.card1, self.card2, self.card3, self.card4, self.card5)
 
 
 class Poker: # Checks players hands as well as creating a deck, shuffling it, and creating players and giving them hands
@@ -146,14 +149,14 @@ class Poker: # Checks players hands as well as creating a deck, shuffling it, an
             self.sorted_suit.append(rank)
 
         for player in self.playerlist:
-            print
-            print player.card1
-            print player.card2
+            print()
+            print (player.card1)
+            print (player.card2)
 
         for i in self.sortedlist:
-            print
+            print()
             for ii in i:
-                print ii
+                print (ii)
 
 
 
@@ -186,20 +189,44 @@ class Poker: # Checks players hands as well as creating a deck, shuffling it, an
 
         return unsortedlist
     def evalHand(self, sortedlist, sortedsuit):
-        return self.isQuads(sortedlist, sortedsuit)
+        return self.isStraightFlush(sortedlist, sortedsuit)
 
     def isRoyalFlush(self, unsortedhand):
         pass
 
-    def isStraightFlush(self, unsortedhand, ):
-        pass
+    def isStraightFlush(self, sortedlist, sortedsuit):
+        hand = []
+        for i in range(len(sortedsuit)):
+            for ii in range(3):
+                if ii == 2:
+                    print ('player doesnt have a straight flush')
+                    return self.isQuads(sortedlist, sortedsuit)
+                elif sortedsuit[i][ii].suit == sortedsuit[i][ii+4].suit:
+                    hand.append(sortedsuit[i][ii])
+                    hand.append(sortedsuit[i][ii+1])
+                    hand.append(sortedsuit[i][ii+2])
+                    hand.append(sortedsuit[i][ii+3])
+                    hand.append(sortedsuit[i][ii+4])
+                    hand.sort(key=lambda x: x.rank, reverse=False)
+                    for i in range(len(hand)):
+                        if hand[4] - hand[0] == 4 and hand[3] - hand[0] == 3 and hand[2] - hand[0] == 2 and hand[1] - hand[0] == 1:
+                            if hand[4].getRank() == 14:
+                                print ('ROYAL FLUSH?!')
+                                for i in hand:
+                                    print (i),
+                                exit(0)
+                            print ('wow! player', i + 1, 'does have a straight flush')
+                            return True, hand
+                        else:
+                            print ('player', i + 1, 'does not have a straight flush')
+                            return self.isQuads(sortedlist, sortedsuit)
 
     def isQuads(self, sortedlist, sortedsuit):
         hand = []
         for i in range(len(sortedlist)):
             for ii in range(4):
                 if ii == 3:
-                    print 'player', i + 1 ,'doesnt have quads'
+                    print ('player', i + 1 ,'doesnt have quads')
                     return self.isFlush(sortedlist, sortedsuit)
                 elif sortedlist[i][ii] == sortedlist[i][ii+1] and sortedlist[i][ii] == sortedlist[i][ii+2]\
                     and sortedlist[i][ii] == sortedlist[i][ii+3]:
@@ -213,7 +240,7 @@ class Poker: # Checks players hands as well as creating a deck, shuffling it, an
                         else:
                             hand.append(k)
                             if len(hand) == 5:
-                                print 'player', i + 1, 'does have quads!'
+                                print ('player', i + 1, 'does have quads!')
                                 score = 1
                                 return score, hand
 
@@ -224,9 +251,8 @@ class Poker: # Checks players hands as well as creating a deck, shuffling it, an
         hand = []
         for i in range(len(sortedsuit)):
             for ii in range(3):
-                print sortedsuit[i][ii].suit == sortedsuit[i][ii+1].suit
                 if ii == 2:
-                    print 'player', i + 1, 'doesnt have a flush'
+                    print ('player', i + 1, 'doesnt have a flush')
                     return self.isStraight(sortedlist)
                 elif sortedsuit[i][ii].suit == sortedsuit[i][ii+4].suit:
                     hand.append(sortedsuit[i][ii])
@@ -234,7 +260,7 @@ class Poker: # Checks players hands as well as creating a deck, shuffling it, an
                     hand.append(sortedsuit[i][ii+2])
                     hand.append(sortedsuit[i][ii+3])
                     hand.append(sortedsuit[i][ii+4])
-                    print 'player', i + 1, 'does have a flush'
+                    print ('player', i + 1, 'does have a flush')
                     return True, hand
 
     def isStraight(self, sortedlist):
@@ -242,7 +268,7 @@ class Poker: # Checks players hands as well as creating a deck, shuffling it, an
         for i in range(len(sortedlist)):
             for ii in range(3):
                 if ii == 2:
-                    print 'player', i + 1, 'doesnt have a straight'
+                    print ('player', i + 1, 'doesnt have a straight')
                     return self.isTrips(sortedlist)
                 elif sortedlist[i][ii+4] - sortedlist[i][ii] == 4 and sortedlist[i][ii+3] - sortedlist[i][ii] == 3 \
                        and sortedlist[i][ii+2] - sortedlist[i][ii] == 2 and sortedlist[i][ii+1] - sortedlist[i][ii] == 1:
@@ -251,7 +277,7 @@ class Poker: # Checks players hands as well as creating a deck, shuffling it, an
                     hand.append(sortedlist[i][ii+2])
                     hand.append(sortedlist[i][ii+3])
                     hand.append(sortedlist[i][ii+4])
-                    print 'player', i + 1, 'does have a straight!'
+                    print ('player', i + 1, 'does have a straight!')
                     return True, hand
 
 
@@ -262,7 +288,7 @@ class Poker: # Checks players hands as well as creating a deck, shuffling it, an
         for i in range(len(sortedlist)):
             for ii in range(6):
                 if ii == 5:
-                    print 'player', i + 1 ,'doesnt have trips'
+                    print ('player', i + 1 ,'doesnt have trips')
                     return self.isTwopair(sortedlist)
                 elif sortedlist[i][ii] == sortedlist[i][ii+1] and sortedlist[i][ii] == sortedlist[i][ii+2]:
                     hand.append(sortedlist[i][ii])
@@ -274,7 +300,7 @@ class Poker: # Checks players hands as well as creating a deck, shuffling it, an
                         else:
                             hand.append(k)
                             if len(hand) == 5:
-                                print 'player', i + 1, 'does have trips!'
+                                print ('player', i + 1, 'does have trips!')
                                 return True, hand
 
     def isTwopair(self, sortedlist):
@@ -285,7 +311,7 @@ class Poker: # Checks players hands as well as creating a deck, shuffling it, an
         for i in range(len(sortedlist)):
             for ii in range(7):
                 if ii == 6:
-                    print 'player', i + 1 ,'doesnt have two pair'
+                    print ('player', i + 1 ,'doesnt have two pair')
                     return self.isPair(sortedlist)
                 elif sortedlist[i][ii] == sortedlist[i][ii+1]:
                     hand.append(sortedlist[i][ii])
@@ -299,7 +325,7 @@ class Poker: # Checks players hands as well as creating a deck, shuffling it, an
                             else:
                                 hand.append(k)
                                 if len(hand) == 5:
-                                    print 'player', i + 1, 'does have two pair!'
+                                    print ('player', i + 1, 'does have two pair!')
                                     return True, hand
 
     def isPair(self, sortedlist):
@@ -310,7 +336,7 @@ class Poker: # Checks players hands as well as creating a deck, shuffling it, an
         for i in range(len(sortedlist)):
             for ii in range(7):
                 if ii == 6:
-                    print 'player', i + 1 ,'doesnt have a pair'
+                    print ('player', i + 1 ,'doesnt have a pair')
                     return self.isHighCard(sortedlist)
                 elif sortedlist[i][ii] == sortedlist[i][ii+1]:
                     hand.append(sortedlist[i][ii])
@@ -321,7 +347,7 @@ class Poker: # Checks players hands as well as creating a deck, shuffling it, an
                         else:
                             hand.append(k)
                             if len(hand) == 5:
-                                print 'player', i + 1, 'does have a pair!'
+                                print ('player', i + 1, 'does have a pair!')
                                 return True, hand
     def isHighCard(self, sortedlist):
         hand = []
@@ -329,7 +355,7 @@ class Poker: # Checks players hands as well as creating a deck, shuffling it, an
         for i in reversed(sortedlist[k]):
             hand.append(i)
             if len(hand) == 5:
-                print 'player 1 has high card:', hand[0]
+                print ('player 1 has high card:', hand[0])
                 return True, hand
 
 def main():
@@ -337,19 +363,21 @@ def main():
     hand = poker.sortedlist
     suit_hand = poker.sorted_suit
     run_count = 0
-    while run_count < 1000:
+    while True:
         poker = Poker()
         hand = poker.sortedlist
+        suit_hand = poker.sorted_suit
         test = poker.evalHand(hand, suit_hand)
-        print "suits:"
+        print ("suits:")
         for i in poker.sorted_suit:
             for ii in i:
-                print ii,
+                print (ii),
         run_count += 1
-        print
-        print
+        print ()
+        print ("run times:", run_count)
+        print ()
         for i in test[1]:
-            print i,
+            print (i),
 
 
     #poker.board.print_river()
