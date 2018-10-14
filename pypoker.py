@@ -24,6 +24,12 @@ class Card:  # Create a card object that stores suit and rank for each object
     def __eq__(self, other):
         return self.rank == other.rank
 
+    def __sub__(self, other):
+        return self.rank - other.rank
+
+    def __add__(self, other):
+        return self.rank + other.rank
+
     def show(self):
         print str(self.rank + self.suit)
 
@@ -85,7 +91,8 @@ class Player:  # Create a player object that with both of its attributes being a
         self.players = []
 
     def create_player_list(self, deck):  # Prompts for amount of players, then fills the player list with constructed player objs
-        self.count = int(input("Enter amount of players 2-10"))
+        #self.count = int(input("Enter amount of players 2-10"))
+        self.count = 1
         for i in range(self.count):
             self.players.append(Player(deck.draw(), deck.draw()))
         return self.players
@@ -128,9 +135,16 @@ class Poker: # Checks players hands as well as creating a deck, shuffling it, an
         self.board = Board(self.deck.burnpile[0], self.flop[0], self.flop[1], self.flop[2],
                            self.deck.burnpile[1], self.turn[0], self.deck.burnpile[2], self.river[0])
         self.sortedlist = []
+        self.sorted_suit = []
+
         for i in range(len(self.playerlist)):
             sortedhand = self.sort_player_hands_by_rank(self.playerlist[i], self.board)
             self.sortedlist.append(sortedhand)
+
+        for i in range(len(self.playerlist)):
+            rank = self.sort_player_hands_by_suit(self.playerlist[i], self.board)
+            self.sorted_suit.append(rank)
+
         for player in self.playerlist:
             print
             print player.card1
@@ -142,11 +156,21 @@ class Poker: # Checks players hands as well as creating a deck, shuffling it, an
                 print ii
 
 
-        test  = self.evalHand(self.sortedlist)
-        for i in test[1]:
-            print i,
+
         # for i in test[1]:
         #     print i
+    def sort_player_hands_by_suit(self, player, board):
+        unsortedlist = [
+                        player.card1,
+                        player.card2,
+                        board.card1,
+                        board.card2,
+                        board.card3,
+                        board.card4,
+                        board.card5
+                        ]
+        unsortedlist.sort(key=lambda y: y.suit, reverse=False)
+        return unsortedlist
 
     def sort_player_hands_by_rank(self, player, board,):
         unsortedlist = [
@@ -161,26 +185,75 @@ class Poker: # Checks players hands as well as creating a deck, shuffling it, an
         unsortedlist.sort(key=lambda x: x.rank, reverse=False)
 
         return unsortedlist
-    def evalHand(self, sortedlist):
-        return self.isTrips(sortedlist)
+    def evalHand(self, sortedlist, sortedsuit):
+        return self.isQuads(sortedlist, sortedsuit)
 
     def isRoyalFlush(self, unsortedhand):
         pass
 
-    def isStraightFlush(self, unsortedhand):
+    def isStraightFlush(self, unsortedhand, ):
         pass
 
-    def isQuads(self, unsortedhand):
-        pass
+    def isQuads(self, sortedlist, sortedsuit):
+        hand = []
+        for i in range(len(sortedlist)):
+            for ii in range(4):
+                if ii == 3:
+                    print 'player', i + 1 ,'doesnt have quads'
+                    return self.isFlush(sortedlist, sortedsuit)
+                elif sortedlist[i][ii] == sortedlist[i][ii+1] and sortedlist[i][ii] == sortedlist[i][ii+2]\
+                    and sortedlist[i][ii] == sortedlist[i][ii+3]:
+                    hand.append(sortedlist[i][ii])
+                    hand.append(sortedlist[i][ii+1])
+                    hand.append(sortedlist[i][ii+2])
+                    hand.append(sortedlist[i][ii+3])
+                    for k in reversed(sortedlist[i]):
+                        if k == hand[0]:
+                            pass
+                        else:
+                            hand.append(k)
+                            if len(hand) == 5:
+                                print 'player', i + 1, 'does have quads!'
+                                score = 1
+                                return score, hand
 
     def isFullHouse(self, sortedlist):
         pass
 
-    def isFlush(self, unsortedhand):
-        pass
+    def isFlush(self, sortedlist, sortedsuit):
+        hand = []
+        for i in range(len(sortedsuit)):
+            for ii in range(3):
+                print sortedsuit[i][ii].suit == sortedsuit[i][ii+1].suit
+                if ii == 2:
+                    print 'player', i + 1, 'doesnt have a flush'
+                    return self.isStraight(sortedlist)
+                elif sortedsuit[i][ii].suit == sortedsuit[i][ii+4].suit:
+                    hand.append(sortedsuit[i][ii])
+                    hand.append(sortedsuit[i][ii+1])
+                    hand.append(sortedsuit[i][ii+2])
+                    hand.append(sortedsuit[i][ii+3])
+                    hand.append(sortedsuit[i][ii+4])
+                    print 'player', i + 1, 'does have a flush'
+                    return True, hand
 
-    def isStraight(self, unsortedhand):
-        pass
+    def isStraight(self, sortedlist):
+        hand = []
+        for i in range(len(sortedlist)):
+            for ii in range(3):
+                if ii == 2:
+                    print 'player', i + 1, 'doesnt have a straight'
+                    return self.isTrips(sortedlist)
+                elif sortedlist[i][ii+4] - sortedlist[i][ii] == 4 and sortedlist[i][ii+3] - sortedlist[i][ii] == 3 \
+                       and sortedlist[i][ii+2] - sortedlist[i][ii] == 2 and sortedlist[i][ii+1] - sortedlist[i][ii] == 1:
+                    hand.append(sortedlist[i][ii])
+                    hand.append(sortedlist[i][ii+1])
+                    hand.append(sortedlist[i][ii+2])
+                    hand.append(sortedlist[i][ii+3])
+                    hand.append(sortedlist[i][ii+4])
+                    print 'player', i + 1, 'does have a straight!'
+                    return True, hand
+
 
     def isTrips(self, sortedlist):
         #handcopy = sortedhand
@@ -261,6 +334,24 @@ class Poker: # Checks players hands as well as creating a deck, shuffling it, an
 
 def main():
     poker = Poker()
+    hand = poker.sortedlist
+    suit_hand = poker.sorted_suit
+    run_count = 0
+    while run_count < 1000:
+        poker = Poker()
+        hand = poker.sortedlist
+        test = poker.evalHand(hand, suit_hand)
+        print "suits:"
+        for i in poker.sorted_suit:
+            for ii in i:
+                print ii,
+        run_count += 1
+        print
+        print
+        for i in test[1]:
+            print i,
+
+
     #poker.board.print_river()
 
 
